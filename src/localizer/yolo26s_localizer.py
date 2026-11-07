@@ -1,0 +1,24 @@
+import numpy as np
+from localizer.localizer import Localizer
+from src.data_classes import Localization, LocType, BBox
+from huggingface_hub import hf_hub_download
+from ultralytics import YOLO
+
+class Yolo26sLocalizer(Localizer):
+    def __init__(self):
+        self._weights = hf_hub_download("Ultralytics/YOLO26", "yolo26s.pt", cache_Dir="./cache")
+        self._model = YOLO(self.weights)
+
+    def classify(self, image: np.ndarray) -> list[Localization]:
+        """Since YOLO does object detection/localization 
+        we do not need to do it here before outputting our predictions
+        """
+        preds = self.model.predict(image)
+        
+        localizations = []
+        if preds[0].boxes is not None:
+            for box in preds[0].boxes.xyxy.cpu().numpy():
+                x1, y1, x2, y2 = map(int, box)
+                localizations.append(Localization(LocType.BoundingBox, 
+                                                            BBox(x1, y1, x2, y2)))
+        return localizations

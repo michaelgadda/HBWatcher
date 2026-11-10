@@ -1,4 +1,4 @@
-from src.motion_detector import MotionDetector
+from src.motion_detector.motion_detector import MotionDetector
 import cv2
 from src.constants import MIN_CONTOUR_AREA
 

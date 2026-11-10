@@ -1,5 +1,6 @@
-from enum import StrEnum
 from __future__ import annotations
+
+from enum import StrEnum
 from src.protocol.yolo_protocol import YoloProtocol
 
 class ProtocolEnum(StrEnum):

@@ -1,8 +1,11 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from enum import StrEnum
-from __future__ import annotations
-import logging 
+import logging
 import numpy as np
+import cv2
+from src.motion_detector.motion_detector_registry import MotionDetectorEnum
 
 LOGGER = logging.getLogger(__name__)
 
@@ -19,14 +22,14 @@ class Localization:
     segmentation: np.ndarray | None = None
 
     def __post_init__(self):
-        if self.loc_type == LocType.BoundingBox and not self.bbox:
+        if self.loc_type == LocType.BoundingBox and self.bbox is None:
             raise ValueError("Localization Type was bounding_box, but \'bbox\' parameter was not set")
-        if self.loc_type == LocType.Pose and not self.pose:
+        if self.loc_type == LocType.Pose and self.pose is None:
             raise ValueError("Localization Type was pose_estimatino, but \'pose\' parameter was not set")
-        if self.loc_type == LocType.Segmentation and not self.segmentation:
+        if self.loc_type == LocType.Segmentation and self.segmentation is None:
             raise ValueError("Localization Type was segmentation, but \'segmentation\' parameter was not set")
 
-@dataclass 
+@dataclass
 class ClassificationCtx:
     image: np.ndarray
     localization: Localization | None = None
@@ -37,7 +40,7 @@ class ClassificationCtx:
             "meaning localization needs to be in the classification call.")
 
 @dataclass
-class Classification: 
+class Classification:
     classification: str
     localization: Localization
 
@@ -58,3 +61,15 @@ class Point3D:
     x: float
     y: float
     z: float
+
+@dataclass
+class StreamCtx:
+    capture_path: str
+    inference_persistence: int = 30
+    motion_detector: MotionDetectorEnum | None = MotionDetectorEnum.MOG2
+    backend: int = cv2.CAP_FFMPEG
+
+@dataclass
+class ProtocolCtx:
+    iou: float = .2
+    conf: float = .8

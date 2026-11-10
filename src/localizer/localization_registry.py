@@ -1,6 +1,5 @@
-from enum import StrEnum
 from __future__ import annotations
-
+from enum import StrEnum
 from src.localizer.yolo26s_localizer import Yolo26sLocalizer
 
 class LocalizerEnum(StrEnum):

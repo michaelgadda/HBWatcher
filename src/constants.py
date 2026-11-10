@@ -1,4 +1,4 @@
 import os
 
-RTSP_URL = os.environ['BIRD_WATCHER_RTSP_URL']
+RTSP_URL = os.environ.get('BIRD_WATCHER_RTSP_URL')
 MIN_CONTOUR_AREA=500

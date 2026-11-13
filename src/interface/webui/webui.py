@@ -1,5 +1,5 @@
 """Display controller-published frames without owning capture or inference."""
-
+from __future__ import annotations
 from collections.abc import Iterator, Sequence
 from threading import Condition, Thread
 from typing import TYPE_CHECKING
@@ -53,7 +53,7 @@ class WebUI:
     def publish(
         self,
         image: np.ndarray,
-        predictions: "Sequence[Classification] | None" = None,
+        predictions: list[Classification] | None = None,
     ):
         """Encode once and broadcast the latest frame to all viewers.
 
@@ -61,18 +61,19 @@ class WebUI:
         """
         if predictions:
             image = image.copy()
-            for prediction in predictions:
-                bbox = prediction.localization.bbox
-                if bbox is None:
-                    continue
-                x1, y1, x2, y2 = map(
-                    int, (bbox.xmin, bbox.ymin, bbox.xmax, bbox.ymax)
-                )
-                cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                cv2.putText(
-                    image, prediction.classification, (x1, max(15, y1 - 5)),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2,
-                )
+            for _, cls_predictions in predictions.items():
+                for prediction in cls_predictions:
+                    bbox = prediction.localization.bbox
+                    if bbox is None:
+                        continue
+                    x1, y1, x2, y2 = map(
+                        int, (bbox.xmin, bbox.ymin, bbox.xmax, bbox.ymax)
+                    )
+                    cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                    cv2.putText(
+                        image, prediction.classification, (x1, max(15, y1 - 5)),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2,
+                    )
         success, buffer = cv2.imencode(".jpg", image)
         if not success:
             raise ValueError("Unable to encode frame as JPEG.")

@@ -68,6 +68,8 @@ class StreamCtx:
     inference_persistence: int = 30
     motion_detector: MotionDetectorEnum | None = MotionDetectorEnum.MOG2
     backend: int = cv2.CAP_FFMPEG
+    rotate: int | None = None
+    record: bool = False
 
 @dataclass
 class ProtocolCtx:

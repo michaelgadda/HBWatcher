@@ -1,6 +1,7 @@
 from pathlib import Path
 import uuid
 from datetime import datetime
+import time
 import cv2
 from src.motion_detector.motion_detector_registry import MOTION_DETECTOR_REGISTRY, MotionDetectorEnum
 from src.video_stream.frame import Frame
@@ -16,7 +17,8 @@ class VideoStream:
         self._cur_frame_number = -1
         self._capture_path = params.capture_path
         self._backend = params.backend
-        self._record = False
+        self._rotate = params.rotate
+        self._record = params.record
         self._last_record_frame_num = None
         self._cur_record_opp = None
         self._motion_detected = False
@@ -26,6 +28,8 @@ class VideoStream:
         self._bird_detected_frame = 0
         self._cur_frame = None
         self._prev_frame = None
+        self._broken_frames = 0
+        self._recording = False
 
     ################## Properties ##################
 
@@ -72,6 +76,10 @@ class VideoStream:
     @property
     def bird_detected(self):
         return self._bird_detected
+
+    @bird_detected.setter
+    def bird_detected(self, bird_detected: bool):
+        self._bird_detected = bird_detected
     
     @property
     def bird_detected_frame(self):
@@ -82,6 +90,11 @@ class VideoStream:
         return self._id
 
     ################## Methods ##################
+
+    def bird_identified(self):
+        self._bird_detected = True
+        self._bird_detected_frame = 0
+        self._recording = True
 
     def record_frame(self):
         if self._cur_frame is None:
@@ -117,7 +130,26 @@ class VideoStream:
             while True:
                 ret, image = cap.read()
                 if not ret:
-                    break
+                    self._broken_frames += 1
+                    if self._broken_frames >= 30:
+                        cap.release()
+                        time.sleep(1)
+                        cap = cv2.VideoCapture(str(self._capture_path), self._backend)
+                        self._broken_frames = 0
+                    else:
+                        time.sleep(.2)
+                    continue
+                if self._rotate is not None:
+                    image = cv2.rotate(image, self._rotate)
+                if self._broken_frames:
+                    self._broken_frames = 0
+                if self.bird_detected:
+                    if self.bird_detected_frame >= self._inference_persistence:
+                        self.bird_detected = False
+                        self._recording = False
+                    else:
+                        self.bird_detected_frame
+                
 
                 if self._motion_detected:
                     if self._motion_detected_frame >= self._inference_persistence:
@@ -130,12 +162,12 @@ class VideoStream:
                 self._prev_frame = self._cur_frame
                 self._cur_frame = frame
 
-                if self._motion_detector is not None:
+                if self._motion_detector is not None and not self.bird_detected:
                     if self._motion_detector.detect_motion(frame.image):
                         self._motion_detected = True
                         self._motion_detected_frame = 0
 
-                if self._record:
+                if self._record and self._recording:
                     self.record_frame()
 
                 yield frame

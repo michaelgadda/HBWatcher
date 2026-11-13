@@ -1,0 +1,30 @@
+name: BirdWatcher
+#TODO: USE CONFIG FILES https://docs.docker.com/reference/compose-file/configs/
+services:
+  clsf_db:
+    image: postgres:18
+    container_name: birdwatcher-db
+    environment:
+      POSTGRES_DB: birdwatcherdb
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    networks:
+      default: {}
+    ports: 
+      - "5100:5100"
+    volumes: 
+      - ${PWD}/BirdWatcherDB:/var/lib/postgresql
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  watch_birds:
+    image: bw-base:latest
+    container_name: watch-birds
+    volumes:
+      - ${PWD}/src:/bw/src
+      - ${PWD}/hb_records:/bw/hb_records
+    ports:
+    - "127.0.0.1:5000:5000"
+    command: python3 -m src.main --source ${source} --ui-host 0.0.0.0 --rotate 2
+
+networks:
+  default: {}

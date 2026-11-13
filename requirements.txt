@@ -13,3 +13,6 @@ opencv-python==5.0.0.93
 # Model downloads and inference (Ultralytics also installs torch and torchvision)
 huggingface-hub==2.3.0
 ultralytics==8.4.190
+
+# Database
+psycopg2

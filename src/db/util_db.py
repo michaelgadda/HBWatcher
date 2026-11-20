@@ -4,7 +4,7 @@ import os
 
 #TODO: Need to add actual error handling and loggings
 
-def db_query(query: str, params: list[str | int]) -> tuple[Any, Any]:
+def db_query(query: str, params: list[str | int | float | None]) -> tuple[Any, Any]:
     db_user = os.getenv("DB_USER")
     db_pwd = os.getenv("DB_PWD")
     db_name = os.getenv("DB_NAME")

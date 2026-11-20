@@ -18,6 +18,6 @@ class YoloProtocol(Protocol):
     def classifier(self):
         return self._classifier
 
-    def predict(self, image: np.ndarray) -> dict[str, Classification]:
+    def predict(self, image: np.ndarray) -> dict[str, list[Classification]]:
         classifications = self._classifier.classify(ClassificationCtx(image))
         return classifications

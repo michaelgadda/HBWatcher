@@ -43,6 +43,8 @@ class ClassificationCtx:
 class Classification:
     classification: str
     localization: Localization
+    # None represents an unavailable score, rather than an invented confidence.
+    confidence: float | None = None
 
 @dataclass
 class BBox:

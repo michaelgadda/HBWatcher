@@ -21,6 +21,7 @@ class VideoStream:
         self._record = params.record
         self._last_record_frame_num = None
         self._cur_record_opp = None
+        self._curr_image_file_opp = None
         self._motion_detected = False
         self._motion_detected_frame = 0
         self._inference_persistence = params.inference_persistence
@@ -30,6 +31,7 @@ class VideoStream:
         self._prev_frame = None
         self._broken_frames = 0
         self._recording = False
+        self._curr_image_file_opp = None 
 
     ################## Properties ##################
 
@@ -113,6 +115,7 @@ class VideoStream:
 
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
         image_path = self._cur_record_opp / f"{timestamp}.jpg"
+        self._curr_image_file_opp = image_path
         success = cv2.imwrite(str(image_path), self._cur_frame.image)
         if success:
             self._last_record_frame_num = self._cur_frame_number

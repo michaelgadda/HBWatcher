@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import numpy as np
-from data_classes import Localization, ProtocolCtx
+from src.data_classes import Localization, ProtocolCtx
 
 
 class Localizer(ABC):

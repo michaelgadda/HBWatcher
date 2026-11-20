@@ -1,7 +1,8 @@
 from src.protocol.protocol_registry import PROTOCOL_REGISTRY, ProtocolEnum
 from src.video_stream.video_stream import VideoStream
-from src.data_classes import StreamCtx, ProtocolCtx
+from src.data_classes import StreamCtx, ProtocolCtx, Classification
 from src.interface.webui.webui import WebUI
+from src.db import db_operations
 
 
 class Controller:
@@ -19,6 +20,7 @@ class Controller:
         self.stream = VideoStream(stream_params)
         self.web_interface = web_interface
         self.ui = WebUI(ui_host, ui_port) if web_interface else None
+        self.current_clsf_types = db_operations.get_curr_classes()
 
     def start(self, type_of_interest: str = "bird"):
         frames = self.stream.capture()
@@ -29,8 +31,19 @@ class Controller:
                 predictions = None
                 if self.stream.motion_detected or self.stream.bird_detected:
                     predictions = self.protocol.predict(frame.image)
-                    if predictions.get(type_of_interest):
+                    tof = predictions.get(type_of_interest)
+                    if tof:
+                        tof: list[Classification]
                         self.stream.bird_identified()
+                        for clsf in tof:
+                            if clsf.classification not in self.current_clsf_types:
+                                db_operations.insert_new_clsf_type(clsf.classification)
+                            db_operations.insert_bbox_detection(
+                                clsf.classification,
+                                self.stream._curr_image_file_opp,
+                                clsf.localization.bbox,
+                                confidence=clsf.confidence,
+                            )
 
                 if self.ui is not None:
                     self.ui.publish(frame.image, predictions)

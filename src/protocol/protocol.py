@@ -18,7 +18,7 @@ class Protocol(ABC):
         pass
 
     @abstractmethod
-    def predict(self, image: np.ndarray) -> dict[str, Classification]:
+    def predict(self, image: np.ndarray) -> dict[str, list[Classification]]:
         """A abstract class holding the mini-pipeline that takes an objects in an image from 
            localization to classification"""
         pass

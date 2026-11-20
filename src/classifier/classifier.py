@@ -7,7 +7,7 @@ class Classifier(ABC):
         self.protocol_params = protocol_params
 
     @abstractmethod
-    def classify(self, context: ClassificationCtx) -> dict[str, Classification]:
+    def classify(self, context: ClassificationCtx) -> dict[str, list[Classification]]:
         """A method to classify (an) object(s)
             The output is a dictionary of 'Classification'(s) so we can have O(1)
             look ups when hunting for specific class types (in this case bird, hummingbird, or type of hummingbird)

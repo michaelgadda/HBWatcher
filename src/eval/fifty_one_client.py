@@ -1,3 +1,5 @@
+"""AI Generated Code"""
+
 import fiftyone as fo
 from src.data_classes import ClassificationCtx
 import cv2
@@ -48,7 +50,7 @@ class FiftyOneClient:
                                                 gt_field="ground_truth",
                                                 method="coco",
                                                 eval_key=eval_key, 
-                                                iou=iou,\
+                                                iou=iou,
                                                 classwise=True,
                                                 compute_mAP=True)
         results.print_report()

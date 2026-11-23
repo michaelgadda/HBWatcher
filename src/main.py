@@ -59,6 +59,8 @@ def run():
                         help="Web UI listening address.")
     parser.add_argument("--ui-port", "--port", dest="ui_port", type=int, default=5000,
                         help="Web UI listening port (0 selects an available port).")
+    parser.add_argument("--db", "--database", action="store_true", default=False,
+                        help="Is there a database spun up ready for action?")
     args = parser.parse_args()
     if not args.source:
         parser.error("Provide --source or set BIRD_WATCHER_RTSP_URL.")
@@ -73,7 +75,7 @@ def run():
     if not isinstance(args.det_conf, (float, int)) or (args.det_conf > 1 or args.det_conf < 0) :
         LOGGER.error("Detection confidence must be a float between 0.0 and 1")
 
-    protocol_params = ProtocolCtx(args.iou, args.det_conf)
+    protocol_params = ProtocolCtx(args.protocol, args.iou, args.det_conf)
 
     stream_params = StreamCtx(
         capture_path=args.source,
@@ -87,12 +89,12 @@ def run():
         record=args.record 
     )
     Controller(
-        protocol=args.protocol,
         stream_params=stream_params,
         protocol_params=protocol_params,
         web_interface=args.web_interface,
         ui_host=args.ui_host,
         ui_port=args.ui_port,
+        db=args.db
     ).start()
 
 

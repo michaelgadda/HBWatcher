@@ -75,5 +75,6 @@ class StreamCtx:
 
 @dataclass
 class ProtocolCtx:
+    protocol_name: str
     iou: float = .2
     conf: float = .8

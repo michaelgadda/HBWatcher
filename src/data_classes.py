@@ -32,10 +32,10 @@ class Localization:
 @dataclass
 class ClassificationCtx:
     image: np.ndarray
-    localization: Localization | None = None
+    localizations: list[Localization] | None = None
 
     def __post_init__(self):
-        if not self.localization:
+        if not self.localizations:
             LOGGER.warning("Localization has not been done; " \
             "meaning localization needs to be in the classification call.")
 

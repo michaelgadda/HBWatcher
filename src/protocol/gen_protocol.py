@@ -21,11 +21,11 @@ class GenericProtocol(Protocol): #TODO: Leaving abstract class for time being, b
     def classifier(self):
         return self._classifier
 
-    def predict(self, image: np.ndarray) -> dict[str, list[Classification]]:
+    def predict(self, image: np.ndarray) -> dict[str, list[Classification]] | None:
         clsfctx = ClassificationCtx(image)
         if self._localizer:
             self._localizer: Localizer
-            localizations: list[Localization] = self._localizer.localize()
-            clsfctx.localization = localizations
+            localizations: list[Localization] = self._localizer.localize(image)
+            clsfctx.localizations = localizations
         classifications = self._classifier.classify(clsfctx)
         return classifications

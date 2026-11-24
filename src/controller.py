@@ -33,6 +33,8 @@ class Controller:
                 predictions = None
                 if self.stream.motion_detected or self.stream.bird_detected:
                     predictions = self.protocol.predict(frame.image)
+                    if not predictions:
+                        continue
                     tof = predictions.get(type_of_interest)
                     if tof:
                         tof: list[Classification]
